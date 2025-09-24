@@ -1,0 +1,20 @@
+import express from 'express';
+import dotenv from 'dotenv';
+import reportRoutes from './routes/reportRoutes.js';
+
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+app.use('/api/reports', reportRoutes);
+const PORT = process.env.PORT || 5000;
+
+app.get('/', (req, res) => {
+    res.send('API is running successfully!');
+});
+
+
+app.listen(PORT, () => {
+    console.log(`✅ Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+});
