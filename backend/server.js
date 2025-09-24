@@ -15,6 +15,12 @@ app.get('/', (req, res) => {
     res.send('API is running successfully!');
 });
 
+// backend/server.js
+app.use((req, res, next) => {
+    req.io = io; // Attaching the io instance to the request object
+    next();
+});
+
 
 app.listen(PORT, () => {
     console.log(`✅ Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
