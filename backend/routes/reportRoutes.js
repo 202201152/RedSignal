@@ -1,15 +1,10 @@
-
 import express from 'express';
+
+import { createReport, getReports } from '../controllers/reportsController.js';
 
 const router = express.Router();
 
+router.route('/').post(createReport).get(getReports);
 
-router.post('/', (req, res) => {
-    res.send('This will create a new report.');
-});
-
-router.get('/', (req, res) => {
-    res.send('This will return all reports.');
-});
 
 export default router;
