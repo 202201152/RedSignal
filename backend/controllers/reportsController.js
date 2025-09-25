@@ -1,4 +1,3 @@
-
 import Report from '../models/Report.js';
 
 export const createReport = async (req, res) => {
@@ -14,6 +13,7 @@ export const createReport = async (req, res) => {
         });
 
         const savedReport = await newReport.save();
+        req.io.emit('new-report', savedReport);
 
         res.status(201).json(savedReport);
 

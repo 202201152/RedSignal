@@ -1,27 +1,53 @@
+// backend/server.js
+
 import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
 import dotenv from 'dotenv';
-import reportRoutes from './routes/reportRoutes.js';
+import cors from 'cors';
+import helmet from 'helmet';
+
 import connectDB from './config/db.js';
+import reportRoutes from './routes/reportRoutes.js';
 
+// Load environment variables
 dotenv.config();
+
+// Connect to MongoDB
 connectDB();
+
 const app = express();
-app.use(express.json());
+const server = http.createServer(app);
 
-app.use('/api/reports', reportRoutes);
-const PORT = process.env.PORT || 5000;
-
-app.get('/', (req, res) => {
-    res.send('API is running successfully!');
+// Initialize Socket.IO -- MUST be done before the middleware that uses it
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000", // Your React app's origin
+        methods: ["GET", "POST"]
+    }
 });
 
-// backend/server.js
+// General Middleware
+app.use(cors());
+app.use(helmet());
+app.use(express.json());
+
+// Middleware to attach Socket.IO to every request
 app.use((req, res, next) => {
-    req.io = io; // Attaching the io instance to the request object
+    req.io = io;
     next();
 });
 
+// API Routes
+app.use('/api/reports', reportRoutes);
 
-app.listen(PORT, () => {
-    console.log(`✅ Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+// Socket.io connection handler
+io.on('connection', (socket) => {
+    console.log('A user connected via WebSocket:', socket.id);
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
 });
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`✅ Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`));
