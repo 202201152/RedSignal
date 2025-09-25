@@ -1,10 +1,13 @@
-
-
 import mongoose from 'mongoose';
-
 
 const reportSchema = new mongoose.Schema(
     {
+        // -- NEWLY ADDED & REQUIRED FIELD --
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'User', // This creates a reference to the User model
+        },
         text: {
             type: String,
             required: [true, 'Report text is required.'],

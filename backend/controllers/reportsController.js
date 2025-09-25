@@ -10,6 +10,9 @@ export const createReport = async (req, res) => {
                 type: 'Point',
                 coordinates: [lng, lat],
             },
+            // This is the crucial change. It links the report to the user ID
+            // provided by the 'protect' middleware.
+            userId: req.user._id,
         });
 
         const savedReport = await newReport.save();
@@ -23,6 +26,7 @@ export const createReport = async (req, res) => {
     }
 };
 
+// No changes are needed for getReports right now.
 export const getReports = async (req, res) => {
     try {
         const reports = await Report.find({}).sort({ createdAt: -1 });

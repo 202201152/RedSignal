@@ -9,6 +9,7 @@ import helmet from 'helmet';
 
 import connectDB from './config/db.js';
 import reportRoutes from './routes/reportRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -40,6 +41,9 @@ app.use((req, res, next) => {
 
 // API Routes
 app.use('/api/reports', reportRoutes);
+app.use('/api/auth', authRoutes);
+
+
 
 // Socket.io connection handler
 io.on('connection', (socket) => {
