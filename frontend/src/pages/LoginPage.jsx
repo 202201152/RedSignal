@@ -1,42 +1,35 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext'; // <-- 1. Import useAuth
 import './styles/Auth.css';
 
 const LoginPage = () => {
-    // 1. State for form inputs, loading, and errors
+    const { login } = useAuth(); // <-- 2. Get the login function from our context
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // 2. Handler for input changes
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // 3. Handler for form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
         try {
-            // 4. Send login request to the backend
             const response = await axios.post('http://localhost:5000/api/auth/login', formData);
 
-            // 5. On success, store the token in Local Storage
-            const { token } = response.data;
-            localStorage.setItem('userToken', token);
+            // 3. Use the context's login function.
+            // This will handle setting the token in state and local storage.
+            login(response.data);
 
-            // 6. Set the auth token for all future axios requests
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-            // 7. Redirect to the dashboard
             navigate('/dashboard');
 
         } catch (err) {
-            // 8. If an error occurs, display it
             setError(err.response?.data?.message || 'An error occurred. Please try again.');
         } finally {
             setLoading(false);
@@ -70,7 +63,6 @@ const LoginPage = () => {
                             <input id="password" name="password" type="password" required className="form-input" placeholder="••••••••" value={formData.password} onChange={handleChange} />
                         </div>
 
-                        {/* Display error message if it exists */}
                         {error && <p style={{ color: 'red', fontSize: '0.875rem' }}>{error}</p>}
 
                         <div>
