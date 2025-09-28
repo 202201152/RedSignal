@@ -11,6 +11,8 @@ import authRoutes from './routes/authRoutes.js';
 import sosRoutes from './routes/sosRoutes.js';
 // -- NEWLY ADDED --
 import { getRoomNameFromCoords } from './utils/locationUtils.js';
+import resourceRoutes from './routes/resourceRoutes.js';
+import statsRoutes from './routes/statsRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -44,6 +46,8 @@ app.use((req, res, next) => {
 app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/sos', sosRoutes);
+app.use('/api/resources', resourceRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Socket.io connection handler
 io.on('connection', (socket) => {
