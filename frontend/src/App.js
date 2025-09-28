@@ -3,8 +3,10 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminRoute from './components/AdminRoute'; // <-- 1. IMPORT
-import AdminDashboardPage from './pages/AdminDashboardPage'; // <-- 2. IMPORT
+import AdminRoute from './components/AdminRoute';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import NgoRoute from './components/NgoRoute'; // <-- 1. IMPORT
+import NgoDashboardPage from './pages/NgoDashboardPage'; // <-- 2. IMPORT
 
 function App() {
   return (
@@ -19,11 +21,18 @@ function App() {
         </ProtectedRoute>
       } />
 
-      {/* -- 3. ADD THE NEW ADMIN ROUTE -- */}
+      {/* Add the new Admin route */}
       <Route path="/admin" element={
         <AdminRoute>
           <AdminDashboardPage />
         </AdminRoute>
+      } />
+
+      {/* -- 3. ADD THE NEW NGO ROUTE -- */}
+      <Route path="/ngo" element={
+        <NgoRoute>
+          <NgoDashboardPage />
+        </NgoRoute>
       } />
 
       <Route path="/" element={<Navigate to="/login" />} />

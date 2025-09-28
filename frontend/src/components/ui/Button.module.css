@@ -1,0 +1,22 @@
+.button {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    background-color: var(--color-primary);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.button:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+}
+
+.button:disabled {
+    background-color: #9ca3af;
+    /* gray-400 */
+    cursor: not-allowed;
+}

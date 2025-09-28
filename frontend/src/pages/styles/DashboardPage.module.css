@@ -1,0 +1,24 @@
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    /* 75% for map, 25% for sidebar */
+    gap: 1.5rem;
+    height: 100%;
+    padding: 1.5rem;
+}
+
+.mapArea {
+    grid-column: 1 / 2;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    /* Ensures map corners are rounded */
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.sidebarArea {
+    grid-column: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}

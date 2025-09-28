@@ -1,33 +1,38 @@
+// frontend/src/pages/DashboardPage.jsx
 import React, { useState, useEffect } from 'react';
-// -- 1. ADD 'Link' TO THE IMPORT --
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import io from 'socket.io-client';
-
+import Layout from '../components/Layout';
 import MapComponent from '../components/MapComponent';
-import ReportForm from '../components/ReportForm';
+import LiveFeed from '../components/dashboard/LiveFeed';
+import styles from './styles/DashboardPage.module.css';
 
 const socket = io('http://localhost:5000');
 
 const DashboardPage = () => {
     const [reports, setReports] = useState([]);
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+    const [resources, setResources] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Fetch initial reports when the component mounts
-        const fetchReports = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/reports');
-                const data = await response.json();
-                setReports(data);
+                setLoading(true);
+                const [reportsRes, resourcesRes] = await Promise.all([
+                    fetch('http://localhost:5000/api/reports'),
+                    fetch('http://localhost:5000/api/resources')
+                ]);
+                const reportsData = await reportsRes.json();
+                const resourcesData = await resourcesRes.json();
+                setReports(reportsData);
+                setResources(resourcesData);
             } catch (error) {
-                console.error("Failed to fetch reports:", error);
+                console.error("Failed to fetch initial data:", error);
+            } finally {
+                setLoading(false);
             }
         };
-        fetchReports();
+        fetchData();
 
-        // Get user's location and join the corresponding room
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
@@ -36,56 +41,31 @@ const DashboardPage = () => {
             (error) => console.error("Could not get user location.", error)
         );
 
-        // Listen for new reports
         socket.on('new-report', (newReport) => {
             setReports(prevReports => [newReport, ...prevReports]);
         });
 
-        // Listen for SOS alerts
         socket.on('new-sos', (sosData) => {
             alert(`!!! SOS ALERT !!!\nFrom: ${sosData.name}\nMessage: ${sosData.message}`);
         });
 
-        // Cleanup listeners on component unmount
         return () => {
             socket.off('new-report');
             socket.off('new-sos');
         };
     }, []);
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
-
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-            <header style={{ background: '#282c34', color: 'white', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1>Disaster Alert Platform</h1>
-                <div>
-                    <span>Welcome, {user?.name || 'User'}</span>
-
-                    {/* -- 2. ADD THIS CONDITIONAL LINK -- */}
-                    {user?.role === 'admin' && (
-                        <Link to="/admin" style={{ marginLeft: '1rem', color: '#63b3ed', textDecoration: 'underline' }}>
-                            Admin Panel
-                        </Link>
-                    )}
-
-                    <button onClick={handleLogout} style={{ marginLeft: '1rem', background: '#dc3545', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer' }}>
-                        Logout
-                    </button>
+        <Layout>
+            <div className={styles.dashboardGrid}>
+                <div className={styles.mapArea}>
+                    <MapComponent reports={reports} resources={resources} />
                 </div>
-            </header>
-            <main style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-                <div style={{ flex: 3, position: 'relative' }}>
-                    <MapComponent reports={reports} />
+                <div className={styles.sidebarArea}>
+                    {loading ? <p>Loading feed...</p> : <LiveFeed reports={reports} />}
                 </div>
-                <div style={{ flex: 1, padding: '1rem', borderLeft: '1px solid #ccc', overflowY: 'auto' }}>
-                    <ReportForm />
-                </div>
-            </main>
-        </div>
+            </div>
+        </Layout>
     );
 };
 
