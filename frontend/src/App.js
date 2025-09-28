@@ -22,15 +22,39 @@ function App() {
     };
     fetchReports();
 
+    // -- NEWLY ADDED LOGIC --
+    // Get the user's current location and tell the server to join the corresponding room.
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        console.log(`Joining room for location: ${latitude}, ${longitude}`);
+        // Emit an event to the server to join the room
+        socket.emit('join_location_room', { lat: latitude, lng: longitude });
+      },
+      (error) => {
+        // Handle cases where the user denies location access
+        console.error("Could not get user location for joining room.", error);
+      }
+    );
+    // -- END OF NEWLY ADDED LOGIC --
+
     // Listen for new reports from WebSocket
     socket.on('new-report', (newReport) => {
       console.log('Received new report via WebSocket:', newReport);
       setReports(prevReports => [newReport, ...prevReports]);
     });
 
+    // Listen for new SOS alerts from WebSocket
+    socket.on('new-sos', (sosData) => {
+      console.log('Received SOS:', sosData);
+      // Display a simple browser alert for the SOS
+      alert(`!!! SOS ALERT !!!\nFrom: ${sosData.name}\nMessage: ${sosData.message}`);
+    });
+
     // Cleanup on component unmount
     return () => {
       socket.off('new-report');
+      socket.off('new-sos');
     };
   }, []);
 
@@ -52,4 +76,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 

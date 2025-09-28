@@ -1,5 +1,3 @@
-// backend/server.js
-
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
@@ -10,6 +8,9 @@ import helmet from 'helmet';
 import connectDB from './config/db.js';
 import reportRoutes from './routes/reportRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import sosRoutes from './routes/sosRoutes.js';
+// -- NEWLY ADDED --
+import { getRoomNameFromCoords } from './utils/locationUtils.js';
 
 // Load environment variables
 dotenv.config();
@@ -42,12 +43,23 @@ app.use((req, res, next) => {
 // API Routes
 app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
-
-
+app.use('/api/sos', sosRoutes);
 
 // Socket.io connection handler
 io.on('connection', (socket) => {
     console.log('A user connected via WebSocket:', socket.id);
+
+    // -- NEWLY ADDED LOGIC --
+    // Listen for a client wanting to join a room based on their location
+    socket.on('join_location_room', ({ lat, lng }) => {
+        if (lat && lng) {
+            const roomName = getRoomNameFromCoords(lat, lng);
+            socket.join(roomName);
+            console.log(`Socket ${socket.id} joined room: ${roomName}`);
+        }
+    });
+    // -- END OF NEW LOGIC --
+
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
     });
