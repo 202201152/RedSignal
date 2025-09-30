@@ -1,6 +1,7 @@
 # 🚨 Real-Time Disaster Alert & Coordination Platform
 
-![Platform Screenshot](C:\study\DSA\proj12.PNG) 
+![Platform Screenshot](<img width="1913" height="992" alt="proj12" src="https://github.com/user-attachments/assets/2682a7fc-1f96-47e7-8317-eaf1a0ff9190" />) 
+
 ## 📜 Description
 
 In the critical moments of a disaster, information is the most vital resource. Traditional communication channels are often slow, fragmented, and prone to misinformation. This platform is designed to solve that problem by creating a unified, real-time hub for disaster reporting and coordination.
