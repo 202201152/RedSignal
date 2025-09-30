@@ -1,12 +1,46 @@
-// frontend/src/components/ReportForm.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import Card from './ui/Card';
+import Button from './ui/Button';
+import styles from './ReportForm.module.css';
+import { FiUpload } from 'react-icons/fi';
 
 const ReportForm = () => {
     const [text, setText] = useState('');
+    // State for the actual file objects
+    const [imageFile, setImageFile] = useState(null);
+    const [videoFile, setVideoFile] = useState(null);
+    // State for the preview URLs
+    const [imagePreview, setImagePreview] = useState('');
+    const [videoPreview, setVideoPreview] = useState('');
+
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+
+    // Handler for file inputs
+    const handleFileChange = (e) => {
+        const { name, files } = e.target;
+        const file = files[0];
+        if (!file) return;
+
+        if (name === 'image') {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        } else if (name === 'video') {
+            setVideoFile(file);
+            setVideoPreview(URL.createObjectURL(file));
+        }
+    };
+
+    // Reset form fields after successful submission
+    const resetForm = () => {
+        setText('');
+        setImageFile(null);
+        setVideoFile(null);
+        setImagePreview('');
+        setVideoPreview('');
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,16 +55,22 @@ const ReportForm = () => {
         navigator.geolocation.getCurrentPosition(async (position) => {
             const { latitude, longitude } = position.coords;
 
+            // We must use FormData to send files
+            const formData = new FormData();
+            formData.append('text', text);
+            formData.append('lat', latitude);
+            formData.append('lng', longitude);
+            if (imageFile) formData.append('image', imageFile);
+            if (videoFile) formData.append('video', videoFile);
+
             try {
-                const payload = { text, lat: latitude, lng: longitude };
-
-                // The token is already set in axios defaults by our AuthContext
-                await axios.post('http://localhost:5000/api/reports', payload);
-
+                // Axios automatically sets the correct 'Content-Type' for FormData
+                await axios.post('http://localhost:5000/api/reports', formData);
                 setMessage('Report submitted successfully!');
-                setText('');
+                resetForm();
             } catch (err) {
-                setError(err.response?.data?.message || 'Submission failed.');
+                // Check for specific error message from our backend validation
+                setError(err.response?.data?.message || 'Submission failed. Please check file sizes.');
             } finally {
                 setSubmitting(false);
             }
@@ -41,23 +81,44 @@ const ReportForm = () => {
     };
 
     return (
-        <div className="report-form-container">
-            <h2>Submit a Report</h2>
+        <Card title="Submit a Report">
             <form onSubmit={handleSubmit}>
                 <textarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    placeholder="Describe the situation..."
+                    placeholder="Describe the situation in detail..."
                     required
-                    style={{ width: '100%', minHeight: '100px', marginBottom: '1rem', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                    className={styles.textarea}
                 />
-                {error && <p style={{ color: 'red', fontSize: '0.875rem' }}>{error}</p>}
-                {message && <p style={{ color: 'green', fontSize: '0.875rem' }}>{message}</p>}
-                <button type="submit" className="submit-btn" disabled={submitting}>
+
+                {/* Image Upload */}
+                <div className={styles.fileInputGroup}>
+                    <label htmlFor="image-upload" className={styles.fileInputLabel}>
+                        <FiUpload />
+                        <span>Upload Image (Max 2MB)</span>
+                    </label>
+                    <input id="image-upload" type="file" name="image" accept="image/*" onChange={handleFileChange} className={styles.fileInput} />
+                    {imagePreview && <img src={imagePreview} alt="Preview" className={styles.preview} />}
+                </div>
+
+                {/* Video Upload */}
+                <div className={styles.fileInputGroup}>
+                    <label htmlFor="video-upload" className={styles.fileInputLabel}>
+                        <FiUpload />
+                        <span>Upload Video (Max 50MB)</span>
+                    </label>
+                    <input id="video-upload" type="file" name="video" accept="video/*" onChange={handleFileChange} className={styles.fileInput} />
+                    {videoPreview && <video src={videoPreview} controls className={styles.preview} />}
+                </div>
+
+                {error && <p className={styles.error}>{error}</p>}
+                {message && <p className={styles.success}>{message}</p>}
+
+                <Button type="submit" disabled={submitting}>
                     {submitting ? 'Submitting...' : 'Submit Report'}
-                </button>
+                </Button>
             </form>
-        </div>
+        </Card>
     );
 };
 

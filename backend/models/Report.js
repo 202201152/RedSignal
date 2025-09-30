@@ -2,11 +2,10 @@ import mongoose from 'mongoose';
 
 const reportSchema = new mongoose.Schema(
     {
-        // -- NEWLY ADDED & REQUIRED FIELD --
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'User', // This creates a reference to the User model
+            ref: 'User',
         },
         text: {
             type: String,
@@ -28,6 +27,15 @@ const reportSchema = new mongoose.Schema(
             type: String,
             enum: ['pending', 'verified', 'fake', 'flagged'],
             default: 'pending',
+        },
+        // -- NEWLY ADDED FIELDS --
+        imageUrl: {
+            type: String, // Will store the URL from Cloudinary/S3
+            default: null,
+        },
+        videoUrl: {
+            type: String, // Will store the URL from Cloudinary/S3
+            default: null,
         },
     },
     {
