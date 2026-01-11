@@ -1,9 +1,10 @@
 .card {
     display: flex;
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--border-color);
     gap: 1rem;
-    transition: background-color 0.2s;
+    transition: background-color 0.15s ease-in-out;
+    background-color: var(--bg-base);
 }
 
 .card:hover {
@@ -16,16 +17,44 @@
 
 .icon {
     flex-shrink: 0;
-    color: var(--color-warning);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #fee2e2;
+    /* red-100 */
+    color: var(--color-danger);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+/* Verified reports get a check icon style */
+.cardVerified .icon {
+    background-color: #dcfce7;
+    /* green-100 */
+    color: var(--color-success);
 }
 
 .content {
     flex-grow: 1;
+    min-width: 0;
+    /* Text truncation fix */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.25rem;
 }
 
 .text {
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.5rem 0;
     color: var(--text-base);
+    font-size: 0.925rem;
+    line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .footer {
@@ -35,28 +64,30 @@
 }
 
 .status {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    text-transform: capitalize;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .pending {
-    background-color: #fef3c7;
-    /* amber-100 */
-    color: #b45309;
-    /* amber-700 */
+    background-color: #fff7ed;
+    /* orange-50 */
+    color: var(--color-warning);
+    border: 1px solid #ffedd5;
 }
 
 .verified {
-    background-color: #dcfce7;
-    /* green-100 */
-    color: #166534;
-    /* green-800 */
+    background-color: #f0fdf4;
+    /* green-50 */
+    color: var(--color-success);
+    border: 1px solid #bbf7d0;
 }
 
 .time {
     font-size: 0.75rem;
     color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
 }

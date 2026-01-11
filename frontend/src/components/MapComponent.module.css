@@ -1,0 +1,114 @@
+/* Map Overlay & Marker Styles */
+
+.mapContainer {
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+/* Stats Overlay */
+.statsOverlay {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    /* Move to left to avoid blocking layer control usually on right */
+    z-index: 999;
+    /* Leaflet uses high z-indices, usually 400+ for controls */
+    background-color: var(--bg-base);
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 160px;
+    pointer-events: auto;
+    /* Ensure clicks work */
+}
+
+.statsTitle {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+
+.statItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.statValue {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Custom Marker Dots */
+/* Note: These classes are used by Leaflet L.divIcon */
+:global(.custom-marker) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+:global(.marker-dot) {
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    border: 3px solid #64748b;
+    /* default slate */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+}
+
+:global(.marker-dot:hover) {
+    transform: scale(1.2);
+}
+
+:global(.marker-critical) .marker-dot {
+    border-color: var(--color-danger);
+    /* Red */
+    background-color: #fee2e2;
+}
+
+:global(.marker-warning) .marker-dot {
+    border-color: var(--color-warning);
+    /* Amber */
+    background-color: #fef3c7;
+}
+
+:global(.marker-verified) .marker-dot {
+    border-color: var(--color-success);
+    /* Green */
+    background-color: #dcfce7;
+}
+
+:global(.marker-pulse) {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(220, 38, 38, 0.4);
+    animation: pulse 1.5s infinite;
+    z-index: -1;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}

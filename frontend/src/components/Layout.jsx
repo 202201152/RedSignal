@@ -16,16 +16,38 @@ const Layout = ({ children }) => {
         <div className={styles.layoutContainer}>
             {/* Sidebar Navigation */}
             <aside className={styles.sidebar}>
-                <div>
-                    <h1 className={styles.brand}>Disaster.io</h1>
+                <div className={styles.sidebarTop}>
+                    <div className={styles.brandContainer}>
+                         <div className={styles.brandLogomark} />
+                         <h1 className={styles.brand}>RedSignal</h1>
+                    </div>
+                    
                     <nav className={styles.nav}>
-                        <Link to="/dashboard" className={styles.navLink}>Dashboard</Link>
-                        {user?.role === 'admin' && <Link to="/admin" className={styles.navLink}>Admin Panel</Link>}
-                        {user?.role === 'ngo' && <Link to="/ngo" className={styles.navLink}>NGO Panel</Link>}
+                        <p className={styles.navHeader}>MENU</p>
+                        <Link to="/dashboard" className={styles.navLink}>
+                            <span>Dashboard</span>
+                        </Link>
+                        {user?.role === 'ngo' && (
+                            <Link to="/ngo" className={styles.navLink}>
+                                <span>NGO Panel</span>
+                            </Link>
+                        )}
+                        {user?.role === 'admin' && (
+                            <Link to="/admin" className={styles.navLink}>
+                                <span>Admin Panel</span>
+                            </Link>
+                        )}
                     </nav>
                 </div>
+
                 <div className={styles.userProfile}>
-                    <span className={styles.userName}>{user?.name || 'User'}</span>
+                    <div className={styles.userInfo}>
+                        <div className={styles.avatar}>{user?.name?.charAt(0) || 'U'}</div>
+                        <div className={styles.userDetails}>
+                            <span className={styles.userName}>{user?.name || 'User'}</span>
+                            <span className={styles.userRole}>{user?.role || 'Volunteer'}</span>
+                        </div>
+                    </div>
                     <button onClick={handleLogout} className={styles.logoutButton}>
                         Logout
                     </button>
