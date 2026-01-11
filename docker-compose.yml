@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      # Ensure these are passed from your .env file or set here
+      - MONGO_URI=mongodb+srv://raganpatel648:ragan1234@cluster0.bs78a.mongodb.net/durga-art-zone?retryWrites=true&w=majority&appName=Cluster0
+      - JWT_SECRET=supersecretkey123
+      - CLOUDINARY_CLOUD_NAME=Root
+      - CLOUDINARY_API_KEY=927119735751546
+      - CLOUDINARY_API_SECRET=nqrk0DDR7MOmPBmgVcIOmuDAT0I
+    restart: always
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      # Nginx config doesn't use this at runtime, but build process might need it
+      # Ideally hardcode into Nginx or build with ARG if dynamic
+      - REACT_APP_API_URL=http://localhost:5000
+    restart: always
