@@ -28,12 +28,24 @@ const AdminDashboardPage = () => {
     // Function to handle report verification
     const handleVerify = async (reportId) => {
         try {
-            // The admin's token is automatically sent by our axios config
             await axios.put(`http://localhost:5000/api/reports/${reportId}/verify`);
-            // Refresh the list to show the updated status
             fetchReports();
         } catch (err) {
             alert('Failed to verify report.');
+        }
+    };
+
+    // -- 2. ADD Delete Functionality --
+    const handleDelete = async (reportId) => {
+        if (!window.confirm("Are you sure you want to delete this report? This action cannot be undone.")) return;
+
+        try {
+            await axios.delete(`http://localhost:5000/api/reports/${reportId}`);
+            // Optimistic update: remove from local state immediately
+            setReports(prev => prev.filter(r => r._id !== reportId));
+        } catch (err) {
+            alert('Failed to delete report.');
+            console.error(err);
         }
     };
 
@@ -65,17 +77,23 @@ const AdminDashboardPage = () => {
                                     padding: '4px 8px',
                                     borderRadius: '12px',
                                     color: 'white',
-                                    backgroundColor: report.status === 'verified' ? '#28a745' : '#ffc107'
+                                    backgroundColor: report.status === 'verified' ? '#22c55e' : '#f59e0b'
                                 }}>
                                     {report.status}
                                 </span>
                             </td>
-                            <td style={{ padding: '8px' }}>
+                            <td style={{ padding: '8px', display: 'flex', gap: '0.5rem' }}>
                                 {report.status === 'pending' && (
-                                    <button onClick={() => handleVerify(report._id)} className="submit-btn" style={{ padding: '5px 10px' }}>
+                                    <button onClick={() => handleVerify(report._id)} className="submit-btn" style={{ padding: '5px 10px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                                         Verify
                                     </button>
                                 )}
+                                <button
+                                    onClick={() => handleDelete(report._id)}
+                                    style={{ padding: '5px 10px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    Delete
+                                </button>
                             </td>
                         </tr>
                     ))}

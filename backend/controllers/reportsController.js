@@ -76,3 +76,20 @@ export const verifyReport = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+// -- DELETE REPORT FUNCTION --
+export const deleteReport = async (req, res) => {
+    try {
+        const report = await Report.findById(req.params.id);
+
+        if (report) {
+            await report.deleteOne(); // or remove() depending on Mongoose version, deleteOne is safer
+            res.status(200).json({ message: 'Report removed' });
+        } else {
+            res.status(404).json({ message: 'Report not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting report:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
