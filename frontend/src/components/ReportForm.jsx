@@ -4,6 +4,7 @@ import Card from './ui/Card';
 import Button from './ui/Button';
 import styles from './ReportForm.module.css';
 import { FiUpload } from 'react-icons/fi';
+import LocationPicker from './LocationPicker';
 
 const ReportForm = () => {
     const [text, setText] = useState('');
@@ -14,9 +15,33 @@ const ReportForm = () => {
     const [imagePreview, setImagePreview] = useState('');
     const [videoPreview, setVideoPreview] = useState('');
 
+    // -- LOCATION STATE --
+    const [location, setLocation] = useState({ lat: 23.2156, lng: 72.6369 }); // Default
+    const [gettingLocation, setGettingLocation] = useState(false);
+
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+
+    // Load initial location
+    React.useEffect(() => {
+        if (navigator.geolocation) {
+            setGettingLocation(true);
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setLocation({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                    setGettingLocation(false);
+                },
+                (err) => {
+                    console.error("Location access denied or failed", err);
+                    setGettingLocation(false);
+                }
+            );
+        }
+    }, []);
 
     // Handler for file inputs
     const handleFileChange = (e) => {
@@ -52,32 +77,28 @@ const ReportForm = () => {
         setMessage('');
         setError('');
 
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            const { latitude, longitude } = position.coords;
+        // Use the manually selected or detected location
+        const { lat, lng } = location;
 
-            // We must use FormData to send files
-            const formData = new FormData();
-            formData.append('text', text);
-            formData.append('lat', latitude);
-            formData.append('lng', longitude);
-            if (imageFile) formData.append('image', imageFile);
-            if (videoFile) formData.append('video', videoFile);
+        // We must use FormData to send files
+        const formData = new FormData();
+        formData.append('text', text);
+        formData.append('lat', lat);
+        formData.append('lng', lng);
+        if (imageFile) formData.append('image', imageFile);
+        if (videoFile) formData.append('video', videoFile);
 
-            try {
-                // Axios automatically sets the correct 'Content-Type' for FormData
-                await axios.post('http://localhost:5000/api/reports', formData);
-                setMessage('Report submitted successfully!');
-                resetForm();
-            } catch (err) {
-                // Check for specific error message from our backend validation
-                setError(err.response?.data?.message || 'Submission failed. Please check file sizes.');
-            } finally {
-                setSubmitting(false);
-            }
-        }, (err) => {
-            setError('Could not get location. Please enable location services.');
+        try {
+            // Axios automatically sets the correct 'Content-Type' for FormData
+            await axios.post('http://localhost:5000/api/reports', formData);
+            setMessage('Report submitted successfully!');
+            resetForm();
+        } catch (err) {
+            // Check for specific error message from our backend validation
+            setError(err.response?.data?.message || 'Submission failed. Please check file sizes.');
+        } finally {
             setSubmitting(false);
-        });
+        }
     };
 
     return (
@@ -90,6 +111,17 @@ const ReportForm = () => {
                     required
                     className={styles.textarea}
                 />
+
+                <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                        Confirm Location (Drag marker to adjust)
+                    </label>
+                    {gettingLocation && <p style={{ fontSize: '0.8rem' }}>Detecting location...</p>}
+                    <LocationPicker
+                        initialPosition={location}
+                        onLocationSelect={setLocation}
+                    />
+                </div>
 
                 {/* Image Upload */}
                 <div className={styles.fileInputGroup}>
