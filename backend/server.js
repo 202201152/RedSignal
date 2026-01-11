@@ -72,4 +72,11 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`✅ Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`));
+
+// Vercel requires exporting the app
+// Only listen if NOT running on Vercel (Vercel sets process.env.VERCEL)
+if (!process.env.VERCEL) {
+    server.listen(PORT, () => console.log(`✅ Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`));
+}
+
+export default app;
