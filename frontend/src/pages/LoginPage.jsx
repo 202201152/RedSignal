@@ -21,12 +21,13 @@ const LoginPage = () => {
         setLoading(true);
         setError('');
 
+        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+            const response = await axios.post(`${API_URL}/api/auth/login`, formData);
             login(response.data);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred. Please try again.');
+            setError(err.response?.data?.message || 'Login failed');
         } finally {
             setLoading(false);
         }

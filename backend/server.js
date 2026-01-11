@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 
 import connectDB from './config/db.js';
 import reportRoutes from './routes/reportRoutes.js';
@@ -34,6 +35,7 @@ const io = new Server(server, {
 // General Middleware
 app.use(cors());
 app.use(helmet());
+app.use(compression()); // Gzip compression
 app.use(express.json());
 
 // Middleware to attach Socket.IO to every request

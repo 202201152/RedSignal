@@ -23,11 +23,12 @@ const SignupPage = () => {
         setLoading(true);
         setError('');
 
+        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
         try {
-            await axios.post('http://localhost:5000/api/auth/signup', formData);
+            await axios.post(`${API_URL}/api/auth/signup`, formData);
             navigate('/login');
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred. Please try again.');
+            setError(err.response?.data?.message || 'Signup failed');
         } finally {
             setLoading(false);
         }

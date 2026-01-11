@@ -1,5 +1,5 @@
 import express from 'express';
-import { createReport, getReports, verifyReport, deleteReport } from '../controllers/reportsController.js';
+import { createReport, getReports, verifyReport } from '../controllers/reportsController.js';
 import { validateReport } from '../middleware/validationMiddleware.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import upload from '../config/cloudinary.js'; // <-- 1. IMPORT the upload middleware
@@ -17,6 +17,5 @@ router.route('/')
     .get(getReports);
 
 router.route('/:id/verify').put(protect, admin, verifyReport);
-router.route('/:id').delete(protect, admin, deleteReport);
 
 export default router;

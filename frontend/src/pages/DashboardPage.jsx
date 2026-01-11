@@ -1,12 +1,13 @@
 // frontend/src/pages/DashboardPage.jsx
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import Layout from '../components/Layout';
-import MapComponent from '../components/MapComponent';
 import LiveFeed from '../components/dashboard/LiveFeed';
+import MapComponent from '../components/MapComponent';
 import styles from './styles/DashboardPage.module.css';
+import { io } from 'socket.io-client';
+import Layout from '../components/Layout';
 
-const socket = io('http://localhost:5000');
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const socket = io(API_URL);
 
 const DashboardPage = () => {
     const [reports, setReports] = useState([]);
@@ -18,8 +19,8 @@ const DashboardPage = () => {
             try {
                 setLoading(true);
                 const [reportsRes, resourcesRes] = await Promise.all([
-                    fetch('http://localhost:5000/api/reports'),
-                    fetch('http://localhost:5000/api/resources')
+                    fetch(`${API_URL}/api/reports`),
+                    fetch(`${API_URL}/api/resources`)
                 ]);
                 const reportsData = await reportsRes.json();
                 const resourcesData = await resourcesRes.json();

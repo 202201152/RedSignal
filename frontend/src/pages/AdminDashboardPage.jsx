@@ -9,10 +9,12 @@ const AdminDashboardPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
     // Function to fetch all reports
     const fetchReports = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/reports');
+            const response = await axios.get(`${API_URL}/api/reports`);
             setReports(response.data);
         } catch (err) {
             setError('Failed to fetch reports.');
@@ -28,26 +30,14 @@ const AdminDashboardPage = () => {
     // Function to handle report verification
     const handleVerify = async (reportId) => {
         try {
-            await axios.put(`http://localhost:5000/api/reports/${reportId}/verify`);
+            await axios.put(`${API_URL}/api/reports/${reportId}/verify`);
             fetchReports();
         } catch (err) {
             alert('Failed to verify report.');
         }
     };
 
-    // -- 2. ADD Delete Functionality --
-    const handleDelete = async (reportId) => {
-        if (!window.confirm("Are you sure you want to delete this report? This action cannot be undone.")) return;
 
-        try {
-            await axios.delete(`http://localhost:5000/api/reports/${reportId}`);
-            // Optimistic update: remove from local state immediately
-            setReports(prev => prev.filter(r => r._id !== reportId));
-        } catch (err) {
-            alert('Failed to delete report.');
-            console.error(err);
-        }
-    };
 
     if (loading) return <p>Loading reports...</p>;
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
@@ -82,18 +72,12 @@ const AdminDashboardPage = () => {
                                     {report.status}
                                 </span>
                             </td>
-                            <td style={{ padding: '8px', display: 'flex', gap: '0.5rem' }}>
+                            <td style={{ padding: '8px' }}>
                                 {report.status === 'pending' && (
-                                    <button onClick={() => handleVerify(report._id)} className="submit-btn" style={{ padding: '5px 10px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                                    <button onClick={() => handleVerify(report._id)} className="submit-btn" style={{ padding: '5px 10px' }}>
                                         Verify
                                     </button>
                                 )}
-                                <button
-                                    onClick={() => handleDelete(report._id)}
-                                    style={{ padding: '5px 10px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                                >
-                                    Delete
-                                </button>
                             </td>
                         </tr>
                     ))}
