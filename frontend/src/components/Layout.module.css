@@ -142,4 +142,114 @@
 .mainContent {
     flex: 1;
     overflow-y: auto;
+    position: relative;
+    /* Ensure context for absolute positioning if needed */
+}
+
+/* Mobile Header - Hidden by default on desktop */
+.mobileHeader {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: var(--bg-sidebar);
+    color: white;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+}
+
+.brandContainerMobile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.hamburger {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .layoutContainer {
+        flex-direction: column;
+        height: 100vh;
+        /* Use dynamic viewport height if needed */
+    }
+
+    .mobileHeader {
+        display: flex;
+        /* Show header on mobile */
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 280px;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        /* Above overlay */
+    }
+
+    .sidebarOpen {
+        transform: translateX(0);
+    }
+
+    .mainContent {
+        width: 100%;
+        height: calc(100vh - 60px);
+        /* Adjust for header height */
+    }
+}
+
+.navLink.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-left: 3px solid var(--color-danger);
+    padding-left: calc(0.75rem - 3px);
+    /* Compensate for border */
+}
+
+/* Scrollbar styling for main content */
+.mainContent::-webkit-scrollbar {
+    width: 8px;
+}
+
+.mainContent::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mainContent::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 20px;
 }

@@ -3,7 +3,8 @@ import axios from 'axios';
 import Card from './ui/Card';
 import Button from './ui/Button';
 import styles from './ReportForm.module.css';
-import { FiUpload } from 'react-icons/fi';
+import { FiUpload, FiMapPin } from 'react-icons/fi';
+import LocationPickerMap from './LocationPickerMap';
 
 const ReportForm = () => {
     const [text, setText] = useState('');
@@ -27,11 +28,14 @@ const ReportForm = () => {
         if (name === 'image') {
             setImageFile(file);
             setImagePreview(URL.createObjectURL(file));
-        } else if (name === 'video') {
-            setVideoFile(file);
             setVideoPreview(URL.createObjectURL(file));
         }
     };
+
+    // Location State
+    const [manualLocation, setManualLocation] = useState(null);
+    const [showMap, setShowMap] = useState(false);
+    const [usingAutoLocation, setUsingAutoLocation] = useState(false);
 
     // Reset form fields after successful submission
     const resetForm = () => {
@@ -40,6 +44,38 @@ const ReportForm = () => {
         setVideoFile(null);
         setImagePreview('');
         setVideoPreview('');
+        setManualLocation(null);
+        setShowMap(false);
+    };
+
+    const handleLocationSelect = (latlng) => {
+        setManualLocation(latlng);
+        setUsingAutoLocation(false);
+    };
+
+    const handleAutoLocation = () => {
+        setUsingAutoLocation(true);
+        setShowMap(false);
+        if (!navigator.geolocation) {
+            setError('Geolocation is not supported by your browser.');
+            setUsingAutoLocation(false);
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                setManualLocation({ lat: latitude, lng: longitude });
+                // We don't necessarily show the map here, just set the coords
+                setMessage('Location detected successfully!');
+                setTimeout(() => setMessage(''), 3000);
+                setUsingAutoLocation(false);
+            },
+            (err) => {
+                console.error(err);
+                setError('Could not get location. Please enable location services or use the map.');
+                setUsingAutoLocation(false);
+            }
+        );
     };
 
     const handleSubmit = async (e) => {
@@ -48,45 +84,38 @@ const ReportForm = () => {
             setError('Report text must be at least 10 characters long.');
             return;
         }
+        if (!manualLocation) {
+            setError('Please select a location using the map or "Use My Location" button.');
+            return;
+        }
+
         setSubmitting(true);
         setMessage('');
         setError('');
 
-        if (!navigator.geolocation) {
-            setError('Geolocation is not supported by your browser.');
-            setSubmitting(false);
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            const { latitude, longitude } = position.coords;
+        try {
+            const { lat, lng } = manualLocation;
 
             // We must use FormData to send files
             const formData = new FormData();
             formData.append('text', text);
-            formData.append('lat', latitude);
-            formData.append('lng', longitude);
+            formData.append('lat', lat);
+            formData.append('lng', lng);
             if (imageFile) formData.append('image', imageFile);
             if (videoFile) formData.append('video', videoFile);
 
             const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-            try {
-                // Axios automatically sets the correct 'Content-Type' for FormData
-                await axios.post(`${API_URL}/api/reports`, formData);
-                setMessage('Report submitted successfully!');
-                resetForm();
-            } catch (err) {
-                // Check for specific error message from our backend validation
-                setError(err.response?.data?.message || 'Submission failed. Please check file sizes.');
-            } finally {
-                setSubmitting(false);
-            }
-        }, (err) => {
-            console.error(err);
-            setError('Could not get location. Please enable location services.');
+            // Axios automatically sets the correct 'Content-Type' for FormData
+            await axios.post(`${API_URL}/api/reports`, formData);
+            setMessage('Report submitted successfully!');
+            resetForm();
+        } catch (err) {
+            // Check for specific error message from our backend validation
+            setError(err.response?.data?.message || 'Submission failed. Please check file sizes.');
+        } finally {
             setSubmitting(false);
-        });
+        }
     };
 
     return (
@@ -99,6 +128,29 @@ const ReportForm = () => {
                     required
                     className={styles.textarea}
                 />
+
+                {/* Location Picker Section */}
+                <div className={styles.locationSection}>
+                    <p className={styles.label}>Location: {manualLocation ? `Selected (${manualLocation.lat.toFixed(4)}, ${manualLocation.lng.toFixed(4)})` : 'Not Selected'}</p>
+
+                    <div className={styles.locationButtons}>
+                        <Button type="button" onClick={handleAutoLocation} disabled={usingAutoLocation} className={styles.secondaryButton}>
+                            <FiMapPin /> Use My Location
+                        </Button>
+                        <Button type="button" onClick={() => setShowMap(!showMap)} className={styles.secondaryButton}>
+                            {showMap ? 'Hide Map' : 'Select on Map'}
+                        </Button>
+                    </div>
+
+                    {showMap && (
+                        <div className={styles.mapWrapper}>
+                            <LocationPickerMap
+                                initialPosition={manualLocation}
+                                onLocationSelect={handleLocationSelect}
+                            />
+                        </div>
+                    )}
+                </div>
 
 
 

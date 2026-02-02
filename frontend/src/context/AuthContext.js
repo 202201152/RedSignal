@@ -11,16 +11,20 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         // This effect runs when the app loads to keep the user logged in
         const userToken = localStorage.getItem('userToken');
+        const savedUser = localStorage.getItem('userData');
+
         if (userToken) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${userToken}`;
-            // Here you might want to fetch user data if you don't store it
-            // For now, we'll just keep the token
             setToken(userToken);
+            if (savedUser) {
+                setUser(JSON.parse(savedUser));
+            }
         }
     }, []);
 
     const login = (userData) => {
         localStorage.setItem('userToken', userData.token);
+        localStorage.setItem('userData', JSON.stringify(userData));
         axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
         setToken(userData.token);
         setUser(userData); // Set user data on login
@@ -28,6 +32,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('userToken');
+        localStorage.removeItem('userData');
         delete axios.defaults.headers.common['Authorization'];
         setToken(null);
         setUser(null);

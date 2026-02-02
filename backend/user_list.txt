@@ -1,0 +1,4 @@
+Total Users: 3
+Email: test@example.com, Role: user, Name: Updated Name
+Email: admin@durgaartzone.com, Role: admin, Name: Admin User
+Email: 202201152@daiict.ac.in, Role: user, Name: Ragan Patel

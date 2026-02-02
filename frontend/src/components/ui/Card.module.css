@@ -19,3 +19,9 @@
     border-bottom: 1px solid var(--border-color);
     letter-spacing: -0.01em;
 }
+
+@media (max-width: 640px) {
+    .card {
+        padding: 1rem;
+    }
+}

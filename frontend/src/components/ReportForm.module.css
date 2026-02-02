@@ -82,6 +82,64 @@
     font-weight: 500;
 }
 
+.locationSection {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: var(--bg-muted);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.locationButtons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.secondaryButton {
+    background-color: transparent !important;
+    border: 2px solid var(--color-primary) !important;
+    color: var(--color-primary) !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.secondaryButton:hover {
+    background-color: rgba(67, 97, 238, 0.1) !important;
+}
+
+.secondaryButton:disabled {
+    border-color: var(--text-muted) !important;
+    color: var(--text-muted) !important;
+    cursor: not-allowed;
+}
+
+.mapWrapper {
+    margin-top: 1rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .success {
     color: var(--color-success);
     font-size: 0.875rem;
@@ -91,4 +149,34 @@
     border-radius: var(--border-radius);
     text-align: center;
     font-weight: 500;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+    .textarea {
+        font-size: 16px;
+        /* Prevent auto-zoom on iOS inputs < 16px */
+        padding: 0.75rem;
+        min-height: 120px;
+    }
+
+    .locationSection {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .locationButtons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .secondaryButton {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem;
+    }
+
+    .fileInputLabel {
+        padding: 1.5rem 1rem;
+    }
 }
