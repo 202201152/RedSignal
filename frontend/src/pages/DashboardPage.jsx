@@ -6,7 +6,7 @@ import styles from './styles/DashboardPage.module.css';
 import { io } from 'socket.io-client';
 import Layout from '../components/Layout';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 const socket = io(API_URL);
 
 const DashboardPage = () => {

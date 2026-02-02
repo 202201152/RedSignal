@@ -2,6 +2,8 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import multer from 'multer';
+import 'dotenv/config'; // Ensure env vars are loaded before config
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -9,31 +11,36 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+if (!process.env.CLOUDINARY_API_KEY) {
+    console.error("❌ CLOUDINARY_API_KEY is missing from environment variables!");
+}
+
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'disaster_reports',
-        resource_type: 'auto', // Automatically detect if it's an image or video
-        allowed_formats: ['jpeg', 'jpg', 'png', 'mp4', 'mov', 'avi']
+        resource_type: 'image', // Only images
+        allowed_formats: ['jpeg', 'jpg', 'png', 'webp']
     }
 });
 
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 50 * 1024 * 1024 // 50 MB limit for any file
+        fileSize: 15 * 1024 * 1024 // 15 MB limit
     },
     fileFilter: (req, file, cb) => {
         // Custom validation for file size based on type
         const isImage = file.mimetype.startsWith('image/');
-        const isVideo = file.mimetype.startsWith('video/');
 
-        if (isImage && file.size > 2 * 1024 * 1024) { // 2 MB for images
-            return cb(new Error('Image size exceeds the 2 MB limit.'), false);
+        if (isImage && file.size > 15 * 1024 * 1024) { // 15 MB for images
+            return cb(new Error('Image size exceeds the 15 MB limit.'), false);
         }
-        if (isVideo && file.size > 50 * 1024 * 1024) { // 50 MB for videos
-            return cb(new Error('Video size exceeds the 50 MB limit.'), false);
+
+        if (!isImage) {
+            return cb(new Error('Only image files are allowed!'), false);
         }
+
         cb(null, true);
     }
 });

@@ -33,7 +33,8 @@ const NgoDashboardPage = () => {
             };
 
             try {
-                await axios.post('http://localhost:5000/api/resources', payload);
+                const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+                await axios.post(`${API_URL}/api/resources`, payload);
                 setMessage('Resource posted successfully!');
                 // Reset form
                 setFormData({ resourceType: 'Water', description: '', quantity: '' });

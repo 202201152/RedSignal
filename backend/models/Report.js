@@ -29,13 +29,10 @@ const reportSchema = new mongoose.Schema(
             default: 'pending',
         },
         // -- NEWLY ADDED FIELDS --
-        imageUrl: {
-            type: String, // Will store the URL from Cloudinary/S3
-            default: null,
-        },
-        videoUrl: {
-            type: String, // Will store the URL from Cloudinary/S3
-            default: null,
+        // -- NEWLY ADDED FIELDS --
+        imageUrls: {
+            type: [String], // Array of URLs
+            default: [],
         },
     },
     {

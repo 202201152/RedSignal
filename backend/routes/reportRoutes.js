@@ -2,7 +2,7 @@ import express from 'express';
 import { createReport, getReports, verifyReport } from '../controllers/reportsController.js';
 import { validateReport } from '../middleware/validationMiddleware.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
-import upload from '../config/cloudinary.js'; // <-- 1. IMPORT the upload middleware
+import upload from '../config/s3.js'; // <-- 1. IMPORT the S3 middleware
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ const router = express.Router();
 router.route('/')
     .post(
         protect,
-        upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]),
+        upload.array('images', 5), // Allow up to 5 images
         validateReport,
         createReport
     )

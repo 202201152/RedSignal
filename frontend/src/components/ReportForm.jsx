@@ -9,11 +9,10 @@ import LocationPickerMap from './LocationPickerMap';
 const ReportForm = () => {
     const [text, setText] = useState('');
     // State for the actual file objects
-    const [imageFile, setImageFile] = useState(null);
-    const [videoFile, setVideoFile] = useState(null);
+    const [imageFiles, setImageFiles] = useState([]);
     // State for the preview URLs
-    const [imagePreview, setImagePreview] = useState('');
-    const [videoPreview, setVideoPreview] = useState('');
+    const [imagePreviews, setImagePreviews] = useState([]);
+
 
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState('');
@@ -21,15 +20,23 @@ const ReportForm = () => {
 
     // Handler for file inputs
     const handleFileChange = (e) => {
-        const { name, files } = e.target;
-        const file = files[0];
-        if (!file) return;
+        const { files } = e.target;
+        if (!files || files.length === 0) return;
 
-        if (name === 'image') {
-            setImageFile(file);
-            setImagePreview(URL.createObjectURL(file));
-            setVideoPreview(URL.createObjectURL(file));
+        // Convert FileList to Array
+        const fileArray = Array.from(files);
+
+        // Limit to 5 images
+        if (fileArray.length > 5) {
+            setError('You can only upload up to 5 images.');
+            return;
         }
+
+        setImageFiles(fileArray);
+
+        // Crate previews
+        const newPreviews = fileArray.map(file => URL.createObjectURL(file));
+        setImagePreviews(newPreviews);
     };
 
     // Location State
@@ -40,10 +47,8 @@ const ReportForm = () => {
     // Reset form fields after successful submission
     const resetForm = () => {
         setText('');
-        setImageFile(null);
-        setVideoFile(null);
-        setImagePreview('');
-        setVideoPreview('');
+        setImageFiles([]);
+        setImagePreviews([]);
         setManualLocation(null);
         setShowMap(false);
     };
@@ -78,6 +83,8 @@ const ReportForm = () => {
         );
     };
 
+    const [uploadProgress, setUploadProgress] = useState(0);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (text.length < 10) {
@@ -90,10 +97,12 @@ const ReportForm = () => {
         }
 
         setSubmitting(true);
+        setUploadProgress(0); // Reset progress
         setMessage('');
         setError('');
 
         try {
+
             const { lat, lng } = manualLocation;
 
             // We must use FormData to send files
@@ -101,18 +110,29 @@ const ReportForm = () => {
             formData.append('text', text);
             formData.append('lat', lat);
             formData.append('lng', lng);
-            if (imageFile) formData.append('image', imageFile);
-            if (videoFile) formData.append('video', videoFile);
 
-            const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+            // Append multiple images
+            // Note: Use the same key 'images' for each file, backend 'upload.array("images")' expects this.
+            imageFiles.forEach(file => {
+                formData.append('images', file);
+            });
+
+            const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
             // Axios automatically sets the correct 'Content-Type' for FormData
-            await axios.post(`${API_URL}/api/reports`, formData);
+            await axios.post(`${API_URL}/api/reports`, formData, {
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(percentCompleted);
+                }
+            });
             setMessage('Report submitted successfully!');
             resetForm();
+            setUploadProgress(0);
         } catch (err) {
             // Check for specific error message from our backend validation
             setError(err.response?.data?.message || 'Submission failed. Please check file sizes.');
+            setUploadProgress(0);
         } finally {
             setSubmitting(false);
         }
@@ -158,24 +178,38 @@ const ReportForm = () => {
                 <div className={styles.fileInputGroup}>
                     <label htmlFor="image-upload" className={styles.fileInputLabel}>
                         <FiUpload />
-                        <span>Upload Image (Max 2MB)</span>
+                        <span>Upload Images (Max 5, 15MB each)</span>
                     </label>
-                    <input id="image-upload" type="file" name="image" accept="image/*" onChange={handleFileChange} className={styles.fileInput} />
-                    {imagePreview && <img src={imagePreview} alt="Preview" className={styles.preview} />}
-                </div>
+                    <input
+                        id="image-upload"
+                        type="file"
+                        name="image"
+                        accept="image/*"
+                        multiple // Allow multiple files
+                        onChange={handleFileChange}
+                        className={styles.fileInput}
+                    />
 
-                {/* Video Upload */}
-                <div className={styles.fileInputGroup}>
-                    <label htmlFor="video-upload" className={styles.fileInputLabel}>
-                        <FiUpload />
-                        <span>Upload Video (Max 50MB)</span>
-                    </label>
-                    <input id="video-upload" type="file" name="video" accept="video/*" onChange={handleFileChange} className={styles.fileInput} />
-                    {videoPreview && <video src={videoPreview} controls className={styles.preview} />}
+                    {/* Preview Grid */}
+                    {imagePreviews.length > 0 && (
+                        <div className={styles.previewGrid}>
+                            {imagePreviews.map((src, index) => (
+                                <img key={index} src={src} alt={`Preview ${index}`} className={styles.preview} />
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {error && <p className={styles.error}>{error}</p>}
                 {message && <p className={styles.success}>{message}</p>}
+
+                {/* Progress Bar */}
+                {submitting && uploadProgress > 0 && (
+                    <div className={styles.progressContainer}>
+                        <div className={styles.progressBar} style={{ width: `${uploadProgress}%` }}></div>
+                        <span className={styles.progressText}>{uploadProgress}% Uploaded</span>
+                    </div>
+                )}
 
                 <Button type="submit" disabled={submitting}>
                     {submitting ? 'Submitting...' : 'Submit Report'}

@@ -14,10 +14,9 @@ export const createReport = async (req, res) => {
             },
             userId: req.user._id,
             // -- 1. ADD file URLs from the request if they exist --
-            // The 'upload' middleware adds a 'files' object to the request.
-            // We use optional chaining (?.) to safely access the file paths.
-            imageUrl: req.files?.image ? req.files.image[0].path : null,
-            videoUrl: req.files?.video ? req.files.video[0].path : null,
+            // The 'upload' middleware adds a 'files' array to the request.
+            // multer-s3 uses 'location', cloudinary uses 'path'
+            imageUrls: req.files ? req.files.map(file => file.location || file.path) : [],
         });
 
         const savedReport = await newReport.save();
