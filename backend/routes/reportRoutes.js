@@ -2,7 +2,7 @@ import express from 'express';
 import { createReport, getReports, verifyReport } from '../controllers/reportsController.js';
 import { validateReport } from '../middleware/validationMiddleware.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
-import upload from '../config/s3.js'; // <-- 1. IMPORT the S3 middleware
+import upload from '../config/cloudinary.js'; // <-- 1. IMPORT the Cloudinary middleware
 
 const router = express.Router();
 
